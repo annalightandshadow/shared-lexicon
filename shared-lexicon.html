@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Shared Lexicon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --parchment: #eee3c8;
+    --parchment-dim: #cdbf99;
+    --bg-deep: #14100c;
+    --bg-panel: #1e1812;
+    --bg-card: #241c14;
+    --gold: #c9a15a;
+    --gold-bright: #e0bd7d;
+    --border-line: #4a3c26;
+    --red-accent: #7a2b2b;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: radial-gradient(ellipse at top, #201811 0%, var(--bg-deep) 70%);
+    color: var(--parchment);
+    font-family: 'Spectral', serif;
+    font-size: 17px;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 2.5rem 1.5rem 3rem; }
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    font-size: 28px;
+    color: var(--gold-bright);
+    margin: 0 0 4px;
+    text-align: center;
+  }
+  .subtitle {
+    text-align: center;
+    color: var(--parchment-dim);
+    font-style: italic;
+    font-size: 15px;
+    margin: 0 0 1.75rem;
+  }
+  .divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border-line), transparent);
+    margin: 1.5rem 0;
+  }
+  label.field-label {
+    display: block;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    font-family: 'Cinzel', serif;
+    font-weight: 500;
+  }
+  input, textarea {
+    width: 100%;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-line);
+    color: var(--parchment);
+    border-radius: 3px;
+    padding: 9px 12px;
+    font-family: 'Spectral', serif;
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+  input::placeholder, textarea::placeholder { color: #6b5d47; font-style: italic; }
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 1px var(--gold);
+  }
+  textarea { resize: vertical; }
+  .row { display: flex; gap: 10px; }
+  .row > div { flex: 1; }
+  button {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--gold-bright);
+    border: 1px solid var(--gold);
+    border-radius: 3px;
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  button:hover { background: var(--gold); color: var(--bg-deep); }
+  button:disabled { opacity: 0.5; cursor: default; }
+  button:disabled:hover { background: transparent; color: var(--gold-bright); }
+  #add-btn { width: 100%; margin-top: 4px; }
+  .icon-btn {
+    font-family: 'Spectral', serif;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 13px;
+    padding: 4px 10px;
+    border-color: var(--border-line);
+    color: var(--parchment-dim);
+  }
+  .icon-btn:hover { background: var(--border-line); color: var(--parchment); }
+  .icon-btn.danger:hover { background: var(--red-accent); border-color: var(--red-accent); color: var(--parchment); }
+  .error { color: #d98a8a; font-size: 14px; margin: -6px 0 10px; display: none; font-style: italic; }
+  #status { text-align: center; color: var(--parchment-dim); font-size: 14px; font-style: italic; margin: 8px 0 18px; }
+  .tag-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .tag-chip {
+    font-size: 12px;
+    padding: 4px 11px;
+    border: 1px solid var(--border-line);
+    border-radius: 12px;
+    color: var(--parchment-dim);
+    cursor: pointer;
+    background: var(--bg-panel);
+    letter-spacing: 0.02em;
+  }
+  .tag-chip.active { border-color: var(--gold); color: var(--gold-bright); background: rgba(201,161,90,0.12); }
+  .entry-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-line);
+    border-left: 3px solid var(--gold);
+    border-radius: 2px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+  }
+  .entry-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .entry-word { font-family: 'Spectral', serif; font-weight: 600; font-size: 18px; color: var(--gold-bright); letter-spacing: 0.02em; }
+  .entry-meta { font-size: 12px; color: #6b5d47; white-space: nowrap; font-style: italic; }
+  .entry-meaning { margin: 6px 0 10px; color: var(--parchment); line-height: 1.55; }
+  .entry-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .entry-tag { font-size: 11px; padding: 2px 9px; border-radius: 10px; background: rgba(201,161,90,0.12); color: var(--gold); border: 1px solid var(--border-line); }
+  .entry-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .empty { text-align: center; color: var(--parchment-dim); font-style: italic; padding: 2rem 0; }
+  .edit-form input, .edit-form textarea { margin-bottom: 8px; }
+  .edit-actions { display: flex; gap: 8px; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- ============================================= -->
+  <!-- PASTE YOUR firebaseConfig OBJECT BELOW, INSIDE -->
+  <!-- the <script id="firebase-config"> tag near the -->
+  <!-- bottom of this file. Search for "PASTE YOUR"    -->
+  <!-- ============================================= -->
+  <h1>Shared Lexicon</h1>
+  <p class="subtitle">a living record of words between two authors</p>
+
+  <label class="field-label" for="word-input">Word or Phrase</label>
+  <input id="word-input" type="text" placeholder="Enter a word or phrase" autocapitalize="off" autocorrect="off" spellcheck="false" />
+
+  <label class="field-label" for="meaning-input">Meaning / translation</label>
+  <textarea id="meaning-input" placeholder="What does it mean?" rows="2" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
+
+  <label class="field-label" for="tags-input">Tags</label>
+  <input id="tags-input" type="text" placeholder="e.g. noun, Élythandhre, blood magic (comma separated)" autocapitalize="off" autocorrect="off" spellcheck="false" />
+
+  <div class="row">
+    <div>
+      <label class="field-label" for="author-input">Your name</label>
+      <input id="author-input" type="text" placeholder="Optional" />
+    </div>
+  </div>
+  <p id="error-msg" class="error"></p>
+  <button id="add-btn">Add word</button>
+
+  <div class="divider"></div>
+
+  <label class="field-label" for="search-input">Search the lexicon</label>
+  <input id="search-input" type="text" placeholder="Search by word or meaning..." />
+
+  <div id="tag-filters" class="tag-filters"></div>
+
+  <div id="status">Loading...</div>
+  <button id="toggle-btn" style="width: 100%; margin-bottom: 12px;">Show words</button>
+  <div id="word-list" style="display: none;"></div>
+</div>
+
+<script type="module">
+  // ============================================= //
+  // PASTE YOUR firebaseConfig OBJECT HERE:         //
+  const firebaseConfig = {
+    apiKey: "AIzaSyBhOhr9OgQ7nWGpddtsIIH1EhLGsGdONR4",
+    authDomain: "shared-lexicon.firebaseapp.com",
+    databaseURL: "https://shared-lexicon-default-rtdb.firebaseio.com",
+    projectId: "shared-lexicon",
+    storageBucket: "shared-lexicon.firebasestorage.app",
+    messagingSenderId: "957834800362",
+    appId: "1:957834800362:web:2317b9502ba84740e9bb93"
+  };
+  // ============================================= //
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, updateDoc, deleteDoc,
+    doc, onSnapshot, query, orderBy
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const wordsRef = collection(db, "words");
+
+  const listEl = document.getElementById('word-list');
+  const statusEl = document.getElementById('status');
+  const wordInput = document.getElementById('word-input');
+  const meaningInput = document.getElementById('meaning-input');
+  const tagsInput = document.getElementById('tags-input');
+  const authorInput = document.getElementById('author-input');
+  const searchInput = document.getElementById('search-input');
+  const addBtn = document.getElementById('add-btn');
+  const errorMsg = document.getElementById('error-msg');
+  const tagFiltersEl = document.getElementById('tag-filters');
+
+  let entries = [];
+  let activeTag = null;
+  let listVisible = false;
+
+  const toggleBtn = document.getElementById('toggle-btn');
+  function setListVisible(visible) {
+    listVisible = visible;
+    listEl.style.display = visible ? 'block' : 'none';
+    toggleBtn.textContent = visible ? 'Hide words' : 'Show words';
+  }
+  toggleBtn.addEventListener('click', () => setListVisible(!listVisible));
+
+  function showError(msg) { errorMsg.textContent = msg; errorMsg.style.display = 'block'; }
+  function clearError() { errorMsg.style.display = 'none'; }
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+  function parseTags(str) {
+    return str.split(',').map(t => t.trim()).filter(Boolean);
+  }
+
+  // Real-time listener: fires immediately with current data, then again
+  // any time you or your partner add, edit, or delete a word.
+  const q = query(wordsRef, orderBy('word'));
+  onSnapshot(q, (snapshot) => {
+    entries = snapshot.docs.map(d => {
+      const data = d.data();
+      return {
+        _key: d.id,
+        word: data.word,
+        meaning: data.meaning,
+        tags: Array.isArray(data.tags) ? data.tags : [],
+        author: data.author || '',
+        addedAt: data.addedAt || null
+      };
+    });
+    statusEl.textContent = entries.length + ' word' + (entries.length === 1 ? '' : 's') + ' recorded';
+    renderTagFilters();
+    render();
+  }, (err) => {
+    statusEl.textContent = 'Could not connect to the lexicon. Check the Firebase setup.';
+  });
+
+  function renderTagFilters() {
+    const allTags = new Set();
+    entries.forEach(e => e.tags.forEach(t => allTags.add(t)));
+    if (allTags.size === 0) { tagFiltersEl.innerHTML = ''; return; }
+    const sorted = Array.from(allTags).sort((a, b) => a.localeCompare(b));
+    tagFiltersEl.innerHTML = '';
+    sorted.forEach(tag => {
+      const chip = document.createElement('div');
+      chip.className = 'tag-chip' + (activeTag === tag ? ' active' : '');
+      chip.textContent = tag;
+      chip.addEventListener('click', () => {
+        activeTag = (activeTag === tag) ? null : tag;
+        if (activeTag) setListVisible(true);
+        renderTagFilters();
+        render();
+      });
+      tagFiltersEl.appendChild(chip);
+    });
+  }
+
+  function render() {
+    const query = searchInput.value.trim().toLowerCase();
+    let filtered = entries;
+    if (activeTag) filtered = filtered.filter(e => e.tags.includes(activeTag));
+    if (query) filtered = filtered.filter(e =>
+      e.word.toLowerCase().includes(query) || e.meaning.toLowerCase().includes(query)
+    );
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = '<p class="empty">' +
+        (entries.length === 0 ? 'No words yet. Begin the lexicon above.' : 'No matching words.') + '</p>';
+      return;
+    }
+
+    listEl.innerHTML = '';
+    filtered.forEach(entry => {
+      const card = document.createElement('div');
+      card.className = 'entry-card';
+
+      const meta = [];
+      if (entry.author) meta.push(escapeHtml(entry.author));
+      if (entry.addedAt) meta.push(new Date(entry.addedAt).toLocaleDateString());
+
+      const tagsHtml = entry.tags.length
+        ? '<div class="entry-tags">' + entry.tags.map(t => '<span class="entry-tag">' + escapeHtml(t) + '</span>').join('') + '</div>'
+        : '';
+
+      card.innerHTML =
+        '<div class="entry-head">' +
+          '<span class="entry-word">' + escapeHtml(entry.word) + '</span>' +
+          (meta.length ? '<span class="entry-meta">' + meta.join(' &middot; ') + '</span>' : '') +
+        '</div>' +
+        '<p class="entry-meaning">' + escapeHtml(entry.meaning) + '</p>' +
+        tagsHtml +
+        '<div class="entry-actions">' +
+          '<button class="icon-btn edit-btn">edit</button>' +
+          '<button class="icon-btn danger delete-btn">delete</button>' +
+        '</div>';
+
+      card.querySelector('.edit-btn').addEventListener('click', () => enterEditMode(card, entry));
+      card.querySelector('.delete-btn').addEventListener('click', () => deleteEntry(entry));
+
+      listEl.appendChild(card);
+    });
+  }
+
+  function enterEditMode(card, entry) {
+    card.innerHTML =
+      '<div class="edit-form">' +
+        '<label class="field-label">Word or Phrase</label>' +
+        '<input class="edit-word" type="text" value="' + escapeHtml(entry.word) + '" autocapitalize="off" autocorrect="off" spellcheck="false" />' +
+        '<label class="field-label">Meaning</label>' +
+        '<textarea class="edit-meaning" rows="2" autocapitalize="off" autocorrect="off" spellcheck="false">' + escapeHtml(entry.meaning) + '</textarea>' +
+        '<label class="field-label">Tags</label>' +
+        '<input class="edit-tags" type="text" value="' + escapeHtml(entry.tags.join(', ')) + '" autocapitalize="off" autocorrect="off" spellcheck="false" />' +
+        '<p class="error edit-error"></p>' +
+        '<div class="edit-actions">' +
+          '<button class="save-btn">Save</button>' +
+          '<button class="icon-btn cancel-btn">Cancel</button>' +
+        '</div>' +
+      '</div>';
+
+    const errEl = card.querySelector('.edit-error');
+    card.querySelector('.cancel-btn').addEventListener('click', render);
+    card.querySelector('.save-btn').addEventListener('click', async () => {
+      const newWord = card.querySelector('.edit-word').value.trim();
+      const newMeaning = card.querySelector('.edit-meaning').value.trim();
+      const newTags = parseTags(card.querySelector('.edit-tags').value);
+
+      if (!newWord) { errEl.textContent = 'Word or phrase cannot be empty.'; errEl.style.display = 'block'; return; }
+      if (!newMeaning) { errEl.textContent = 'Meaning cannot be empty.'; errEl.style.display = 'block'; return; }
+
+      try {
+        await updateDoc(doc(db, "words", entry._key), {
+          word: newWord, meaning: newMeaning, tags: newTags
+        });
+        // onSnapshot listener will re-render automatically
+      } catch (e) {
+        errEl.textContent = 'Could not save. Check your connection.';
+        errEl.style.display = 'block';
+      }
+    });
+  }
+
+  async function deleteEntry(entry) {
+    try {
+      await deleteDoc(doc(db, "words", entry._key));
+      // onSnapshot listener will re-render automatically
+    } catch (e) {
+      statusEl.textContent = 'Could not delete that entry. Try again.';
+    }
+  }
+
+  async function addEntry() {
+    clearError();
+    const word = wordInput.value.trim();
+    const meaning = meaningInput.value.trim();
+    const tags = parseTags(tagsInput.value);
+    const author = authorInput.value.trim();
+
+    if (!word) { showError('Enter a word or phrase first.'); return; }
+    if (!meaning) { showError('Enter a meaning first.'); return; }
+
+    addBtn.disabled = true;
+    try {
+      await addDoc(wordsRef, {
+        word: word, meaning: meaning, tags: tags, author: author, addedAt: Date.now()
+      });
+      wordInput.value = '';
+      meaningInput.value = '';
+      tagsInput.value = '';
+      setListVisible(true);
+      // onSnapshot listener will re-render automatically
+    } catch (e) {
+      showError('Could not save. Check your connection or Firebase setup.');
+    }
+    addBtn.disabled = false;
+  }
+
+  addBtn.addEventListener('click', addEntry);
+  wordInput.addEventListener('keydown', e => { if (e.key === 'Enter') meaningInput.focus(); });
+  searchInput.addEventListener('input', () => {
+    if (searchInput.value.trim()) setListVisible(true);
+    render();
+  });
+</script>
+</body>
+</html>
